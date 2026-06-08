@@ -1,56 +1,54 @@
 # video-studio
 
-**Edit any video by conversation.** Drop footage in a folder, tell your agent what you
-want, get `final.mp4` back. A self-contained Claude Code plugin that bundles three
-layers into one pipeline — no presets, no menus, no timeline-scrubbing.
+**Use Claude to edit videos and add captions.** Drop your footage in a folder, tell
+Claude what you want, get `final.mp4` back. No timeline, no menus, no presets.
 
-```
-Transcribe ─▶ Pack ─▶ LLM reasons ─▶ EDL ─▶ Render ─▶ Self-eval
-                                                          └─ issue? fix + re-render
-```
+> edit these into a 60-second promo with lower-third captions, no voiceover
 
-The LLM never watches the video. It **reads** it — transcript + on-demand timeline
-PNGs — so it cuts on word boundaries instead of drowning in frames.
+## What it can do
+- **Cut** filler words (`umm`, `uh`), false starts, and dead space between takes
+- **Captions** — burned-in subtitles or animated lower-thirds, in your style
+- **Color grade** every segment (cinematic, neutral, or a custom look)
+- **Motion graphics** — title cards, callouts, kinetic text, audio-reactive bits, scene transitions (HTML + GSAP, rendered with transparency)
+- **Speed ramps** for slow stretches
+- **Transcribe** any video to word-level text
+- **Turn a website into a video** (capture a URL, animate it)
+- Works for anything: talking heads, tutorials, montages, promos, shorts, travel, interviews
 
-## What's bundled (the three layers)
-| Layer | Skills | Does |
-|-------|--------|------|
-| **Cut engine** | `video-use` | transcribe, cut filler/dead-space, color grade, audio fades, subtitle burn, the render composite |
-| **Motion** | `hyperframes`, `hyperframes-cli`, `hyperframes-registry`, `gsap`, `website-to-hyperframes` | HTML+GSAP overlays rendered through headless Chrome to alpha `.mov` |
-| **Craft** | `make-a-video`, `short-form-video`, `docs/MOTION_PHILOSOPHY.md` | storyboard, brand system, pacing, taste |
-| **Orchestrator** | `video-studio` | routes between them; the standard edit loop |
-
-Upstreams (vendored, with licenses in `LICENSES/`): [video-use](https://github.com/browser-use/video-use)
-· [HyperFrames](https://github.com/heygen-com/hyperframes) · [hyperframes-student-kit](https://github.com/nateherkai/hyperframes-student-kit).
+Claude never watches the video frame by frame. It **reads** it (transcript + on-demand
+timeline previews), so it cuts on word boundaries and stays cheap and fast. It proposes
+a cut, waits for your OK, renders, checks every cut for jumps and audio pops, then shows
+you the result.
 
 ## Install
 ```bash
-git clone <this-repo> video-studio && cd video-studio
-./install.sh          # checks ffmpeg/node/chrome, sets up the engine venv, prompts for the key
+git clone https://github.com/<you>/video-studio && cd video-studio
+./install.sh
 ```
-Then register it with your agent:
-- **Claude Code (plugin):** add this dir as a plugin marketplace → `/plugin marketplace add <path>` then `/plugin install video-studio`. Skills auto-load.
-- **Or symlink the skills** into your agent's skills dir: `ln -sfn "$PWD/skills/"* ~/.claude/skills/`.
+`install.sh` checks the prereqs (`ffmpeg`, Node 20+, headless Chrome, Python), sets up
+the engine, and asks once for an [ElevenLabs key](https://elevenlabs.io/app/settings/api-keys)
+(used for transcription).
 
-**Runtime prereqs** (declared, not bundled — `install.sh` checks them): `ffmpeg`,
-Node 20+, headless Chrome, `python3`, an ElevenLabs API key (transcription). `yt-dlp`
-optional for online sources.
+Then register it with Claude Code:
+```bash
+/plugin marketplace add ./           # from the repo dir
+/plugin install video-studio
+```
 
 ## Use
 ```bash
 cp -r templates/project ~/my-video && cd ~/my-video
-# drop clips into sources/, start your agent, then:
+# drop clips into sources/, open Claude Code, then:
 ```
-> edit these into a 60-second promo with lower-third captions, no voiceover
+> edit these into a launch video
 
-It inventories the sources, proposes a cut, waits for your OK, renders to
-`edit/final.mp4`, self-evaluates every cut boundary, and persists the session in
-`project.md`.
+Outputs land in `edit/`. Your session is remembered in `project.md` so next time picks
+up where you left off.
 
-## Why bundle it
-Three repos that already compose, packaged as one installable, shareable unit. Clone
-once, run `install.sh`, edit anything — talking heads, montages, tutorials, promos,
-shorts. See `skills/video-studio/SKILL.md` for the loop and the hard rules.
+## What's inside
+Three open-source layers, bundled to work together:
+- [**video-use**](https://github.com/browser-use/video-use) — the cutting engine (transcribe, cut, grade, subtitle, render)
+- [**HyperFrames**](https://github.com/heygen-com/hyperframes) — the motion-graphics engine (HTML + GSAP overlays)
+- [**hyperframes-student-kit**](https://github.com/nateherkai/hyperframes-student-kit) — motion-design examples and craft
 
-## License
-This bundle: MIT. Vendored components retain their own licenses — see `LICENSES/`.
+Each keeps its own license (see `LICENSES/`). This bundle is MIT.
