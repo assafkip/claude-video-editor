@@ -71,7 +71,7 @@ npx --yes hyperframes@0.6.70 doctor || warn "hyperframes doctor reported issues 
 
 cat <<EOF
 
-$(say "video-studio installed.")
+$(say "Claude video editor installed.")
   Skills:   $ROOT/skills  (video-studio orchestrator + video-use + hyperframes family)
   Engine:   $VU/.venv
   Template: $ROOT/templates/project  (copy it next to your footage)

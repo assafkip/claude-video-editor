@@ -1,5 +1,5 @@
 {
-  "name": "video-studio",
+  "name": "claude-video-editor",
   "version": "0.1.0",
   "description": "Edit any video by conversation. Bundles three layers that compose into a full pipeline: video-use (transcript-driven cut/grade/subtitle engine), HeyGen HyperFrames (HTML+GSAP motion-graphics overlays rendered with alpha), and a student-kit motion-craft library. Drop footage in a folder, say 'edit this', get final.mp4.",
   "author": {

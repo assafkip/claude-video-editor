@@ -1,4 +1,4 @@
-# video-studio
+# Claude video editor
 
 **Use Claude to edit videos and add captions.** Drop your footage in a folder, tell
 Claude what you want, get `final.mp4` back. No timeline, no menus, no presets.
@@ -22,7 +22,7 @@ you the result.
 
 ## Install
 ```bash
-git clone https://github.com/<you>/video-studio && cd video-studio
+git clone https://github.com/assafkip/claude-video-editor && cd claude-video-editor
 ./install.sh
 ```
 `install.sh` checks the prereqs (`ffmpeg`, Node 20+, headless Chrome, Python), sets up
@@ -32,7 +32,7 @@ the engine, and asks once for an [ElevenLabs key](https://elevenlabs.io/app/sett
 Then register it with Claude Code:
 ```bash
 /plugin marketplace add ./           # from the repo dir
-/plugin install video-studio
+/plugin install claude-video-editor
 ```
 
 ## Use
