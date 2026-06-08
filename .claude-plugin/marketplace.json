@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "video-studio",
+  "description": "Conversational video editing for Claude Code — cut, grade, subtitle, and animate any footage.",
+  "owner": {
+    "name": "Assaf Kipnis"
+  },
+  "plugins": [
+    {
+      "name": "video-studio",
+      "description": "Edit any video by conversation: transcript-driven cutting (video-use) + HTML/GSAP motion graphics (HyperFrames) + a motion-craft library. Drop footage, say 'edit this', get final.mp4.",
+      "author": { "name": "Assaf Kipnis" },
+      "category": "media",
+      "source": {
+        "source": "directory",
+        "path": "."
+      }
+    }
+  ]
+}
