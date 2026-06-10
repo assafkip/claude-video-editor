@@ -52,3 +52,13 @@ Three open-source layers, bundled to work together:
 - [**hyperframes-student-kit**](https://github.com/nateherkai/hyperframes-student-kit) — motion-design examples and craft
 
 Each keeps its own license (see `LICENSES/`). This bundle is MIT.
+
+---
+
+## Built by Assaf
+
+The demo video on [claudedaddy.io](https://claudedaddy.io) was made with this editor, by typing sentences.
+
+The engine here is free and stays free. **[The Launch Video Kit ($49)](https://claudedaddy.gumroad.com/l/launch-video-kit)** adds the production system around it: three recipes (launch video from pure HTML, tutorial edit from a screen recording, website-to-promo), the worked templates behind the demo video, and a one-paste setup that installs everything for you.
+
+More tools at [claudedaddy.io](https://claudedaddy.io).
