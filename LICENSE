@@ -15,6 +15,18 @@ whose value derives, entirely or substantially, from the functionality of
 the Software. Any license notice or attribution required by the License must
 also include this Commons Clause License Condition notice.
 
+CLARIFICATION OF PERMITTED USE (by the Licensor)
+
+For the avoidance of doubt: using the Software to produce videos or other
+works — including for clients, for compensation, or for your own commercial
+purposes — is permitted use of the Software and is NOT a prohibited "Sell"
+under the Commons Clause condition above. The output you create with the
+Software is yours. The condition restricts only selling the Software itself:
+repackaging, reselling, sublicensing it for a fee, or offering it as a hosted
+or paid service whose value derives substantially from the Software's own
+functionality. This clarification is granted by the Licensor and governs any
+ambiguity in the condition above.
+
 Software: Claude Video Editor (the original code in this repository)
 License: MIT
 Licensor: Assaf Kipnis

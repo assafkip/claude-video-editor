@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Bricolage Grotesque";
+        src: url("assets/fonts/bricolage.woff2") format("woff2");
+        font-weight: 200 800;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "JetBrains Mono";
+        src: url("assets/fonts/jetbrains-mono.woff2") format("woff2");
+        font-weight: 100 800;
+        font-style: normal;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1920px; height: 1080px; overflow: hidden;
+        background: #fef7ec;
+        font-family: "Bricolage Grotesque", system-ui, sans-serif;
+        color: #1a1a1a;
+      }
+
+      /* ---- camera + stage (hero frame: full brief visible) ---- */
+      #camera {
+        width: 100%; height: 100%;
+        display: flex; flex-direction: column; align-items: center;
+        padding: 44px 0 0;
+        transform-origin: 50% 58%;
+      }
+      .setup {
+        font-weight: 700; font-size: 36px; line-height: 1.35;
+        margin-bottom: 22px; text-align: center;
+      }
+      .setup b {
+        background: #ffd23f; padding: 0 10px; border-radius: 6px;
+        border: 3px solid #1a1a1a;
+      }
+      .frame {
+        width: 980px; border: 6px solid #1a1a1a; border-radius: 24px;
+        box-shadow: 16px 16px 0 #1a1a1a; background: #fffdf8; overflow: hidden;
+      }
+      .bar {
+        display: flex; align-items: center; gap: 14px;
+        padding: 16px 24px; border-bottom: 4px solid #1a1a1a; background: #fff;
+      }
+      .bar .t { font-weight: 800; font-size: 22px; }
+      .bar .sub { font-weight: 600; font-size: 22px; color: #6a6a6a; }
+      .bar .pill {
+        margin-left: auto; font-family: "JetBrains Mono", monospace;
+        font-size: 16px; font-weight: 700; background: #eaf6ee; color: #0a8f3c;
+        border: 3px solid #0a8f3c; border-radius: 999px; padding: 4px 16px;
+      }
+      .toggle { display: flex; gap: 12px; padding: 18px 24px 0; }
+      .toggle .btn {
+        font-weight: 800; font-size: 19px; border: 4px solid #1a1a1a;
+        border-radius: 999px; padding: 9px 22px; background: #fff;
+        box-shadow: 4px 4px 0 #1a1a1a;
+      }
+      #bBlind { background: #ffd23f; }
+      .panel { position: relative; padding: 20px 24px 26px; min-height: 540px; }
+
+      /* blind state */
+      #blind {
+        position: absolute; inset: 20px 24px auto;
+        text-align: center; color: #6a6a6a; font-weight: 600;
+        padding: 80px 40px; font-size: 23px; line-height: 1.7;
+      }
+      #blind .guess { filter: blur(5px); color: #999; }
+
+      /* recon rows */
+      .row {
+        border: 3px solid #1a1a1a; border-radius: 14px;
+        padding: 14px 18px; margin-bottom: 13px; background: #fff;
+      }
+      .row .lab {
+        font-family: "JetBrains Mono", monospace; font-size: 16px; font-weight: 700;
+        letter-spacing: .08em; text-transform: uppercase; color: #6a6a6a; margin-bottom: 5px;
+      }
+      .row p { font-size: 21px; line-height: 1.4; font-weight: 500; }
+      .row.kill { border-color: #c0392b; border-width: 4px; background: #fdecea; }
+      .row.kill .lab { color: #c0392b; }
+      .row.counter { border-color: #0a8f3c; background: #eaf6ee; }
+      .row.counter .lab { color: #0a8f3c; }
+      .cite {
+        font-family: "JetBrains Mono", monospace; font-size: 16px;
+        color: #2f6df0; font-weight: 700; border-bottom: 2px dotted #2f6df0;
+      }
+      .nf { font-family: "JetBrains Mono", monospace; font-size: 17px; color: #c98a00; font-weight: 700; }
+
+      .payoff {
+        width: 980px; display: flex; justify-content: space-between;
+        align-items: baseline; gap: 16px; margin-top: 20px; position: relative;
+      }
+      .payoff .s { font-weight: 800; font-size: 26px; }
+      .payoff .s b { color: #0a8f3c; }
+      #payBlind { position: absolute; left: 0; top: 0; }
+      .payoff .brand { font-family: "JetBrains Mono", monospace; font-weight: 800; font-size: 20px; }
+
+      /* cursor */
+      #cursor {
+        position: absolute; width: 26px; height: 26px; border-radius: 50%;
+        background: #1a1a1a; border: 3px solid #fffdf8;
+        box-shadow: 0 2px 8px rgba(26,26,26,.35); z-index: 50;
+        left: 1210px; top: 980px;
+      }
+
+      /* end card */
+      #endcard {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 26px; padding: 120px; text-align: center;
+      }
+      #endcard .name {
+        font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 84px;
+        background: #fffdf8; border: 6px solid #1a1a1a; border-radius: 20px;
+        box-shadow: 14px 14px 0 #1a1a1a; padding: 18px 44px;
+      }
+      #endcard .line { font-weight: 800; font-size: 44px; max-width: 1200px; line-height: 1.35; }
+      #endcard .line b { background: #ffd23f; padding: 0 10px; border-radius: 6px; border: 3px solid #1a1a1a; white-space: nowrap; }
+      #endcard .meta { font-family: "JetBrains Mono", monospace; font-size: 26px; font-weight: 700; color: #6a6a6a; }
+      #endcard .url { font-family: "JetBrains Mono", monospace; font-size: 32px; font-weight: 700; color: #1a1a1a; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="25"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div id="stage" class="clip" data-start="0" data-duration="25" data-track-index="1" style="width:100%;height:100%;position:relative;">
+        <div id="camera" data-layout-allow-overflow>
+          <p class="setup" id="setupLine">A fund decides what it thinks of you <b>before you walk in.</b></p>
+          <div class="frame" id="frame">
+            <div class="bar">
+              <span class="t">VC Prep Brief</span>
+              <span class="sub">· Northgate Ventures (sample)</span>
+              <span class="pill">cites every claim</span>
+            </div>
+            <div class="toggle">
+              <span class="btn" id="bBlind">Walk in blind</span>
+              <span class="btn" id="bRecon">With investor-recon</span>
+            </div>
+            <div class="panel">
+              <div id="blind">
+                You have their homepage tagline and a guess.<br />
+                <span class="guess">"They invest in great teams solving big problems."</span><br />
+                You answer the questions they already settled, and miss the one that kills the deal.
+              </div>
+              <div id="rows">
+                <div class="row" id="r1">
+                  <div class="lab">The fund's real thesis</div>
+                  <p>Not the homepage line. Their last 9 checks went to infra-layer tools sold bottoms-up to engineers, not to apps. <span class="cite">[9 sources]</span></p>
+                </div>
+                <div class="row" id="r2">
+                  <div class="lab">Where you fit</div>
+                  <p>You match the wedge (developer-first, bottoms-up). You collide with <b>Portfolio Co. Vela</b>, which they already own in an adjacent slot. <span class="cite">[2 sources]</span></p>
+                </div>
+                <div class="row kill" id="r3">
+                  <div class="lab">The one objection that kills the deal</div>
+                  <p>This partner has passed twice on tools without a self-serve motion. Your deck leads with enterprise sales. That reads as the thing they just declined.</p>
+                </div>
+                <div class="row counter" id="r4">
+                  <div class="lab">Your counter (say it before they raise it)</div>
+                  <p>Open with the self-serve funnel and the bottoms-up numbers. Frame enterprise as the expansion, not the wedge.</p>
+                </div>
+                <div class="row" id="r5">
+                  <div class="lab">Honesty</div>
+                  <p>Check size for your stage: <span class="nf">Not found.</span> It tells you what it could not confirm instead of making it up.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="payoff">
+            <span class="s" id="payBlind">This is what most founders walk in with. <b style="color:#c0392b">A tagline and a guess.</b></span>
+            <span class="s" id="payRecon">The side that did the homework runs the room. <b>Make it you.</b></span>
+            <span class="brand">github.com/assafkip/investor-recon</span>
+          </div>
+        </div>
+        <div id="cursor"></div>
+        <div id="endcard">
+          <div class="name">investor-recon</div>
+          <div class="line">The side that did the homework runs the room. <b>Make it you.</b></div>
+          <div class="meta">free · six prompts · ~25 min per investor</div>
+          <div class="url">github.com/assafkip/investor-recon</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* ---- t=0 ground state (hide what enters later) ---- */
+      tl.set("#rows .row", { autoAlpha: 0, y: 28 }, 0);
+      tl.set("#payRecon", { autoAlpha: 0 }, 0);
+      tl.set("#cursor", { autoAlpha: 0 }, 0);
+      tl.set("#endcard", { autoAlpha: 0 }, 0);
+      tl.set("#bRecon", { backgroundColor: "#ffffff" }, 0);
+
+      /* ---- 1. HOOK ---- */
+      tl.from("#setupLine", { y: -46, autoAlpha: 0, duration: 0.65, ease: "power3.out" }, 0.2);
+      tl.from("#frame", { y: 70, scale: 0.94, autoAlpha: 0, duration: 0.8, ease: "back.out(1.4)" }, 0.9);
+      tl.from(".payoff", { autoAlpha: 0, y: 20, duration: 0.5, ease: "power2.out" }, 1.6);
+
+      /* ---- 2. BLIND (hold; gentle attention pulse on the guess) ---- */
+      tl.fromTo("#blind .guess", { scale: 1 }, { scale: 1.04, duration: 0.55, ease: "sine.inOut", repeat: 3, yoyo: true }, 3.2);
+
+      /* ---- 3. TURN: cursor flies in, clicks the recon toggle ---- */
+      tl.to("#cursor", { autoAlpha: 1, duration: 0.2, ease: "power1.out" }, 5.8);
+      tl.to("#cursor", { left: 738, top: 318, duration: 0.75, ease: "power2.inOut" }, 5.9);
+      tl.to("#cursor", { scale: 0.72, duration: 0.12, ease: "power2.in" }, 6.7);
+      tl.to("#cursor", { scale: 1, duration: 0.14, ease: "power2.out" }, 6.82);
+      tl.to("#bRecon", { backgroundColor: "#ffd23f", duration: 0.18, ease: "power1.inOut" }, 6.75);
+      tl.to("#bBlind", { backgroundColor: "#ffffff", duration: 0.18, ease: "power1.inOut" }, 6.75);
+      tl.to("#bRecon", { x: 3, y: 3, boxShadow: "1px 1px 0 #1a1a1a", duration: 0.1, ease: "power2.in" }, 6.7);
+      tl.to("#bRecon", { x: 0, y: 0, boxShadow: "4px 4px 0 #1a1a1a", duration: 0.12, ease: "power2.out" }, 6.82);
+      tl.to("#cursor", { autoAlpha: 0, duration: 0.3, ease: "power1.in" }, 7.2);
+      tl.to("#blind", { autoAlpha: 0, y: -16, duration: 0.35, ease: "power2.in" }, 6.95);
+      tl.to("#payBlind", { autoAlpha: 0, duration: 0.3 }, 7.0);
+      tl.to("#payRecon", { autoAlpha: 1, duration: 0.4 }, 7.25);
+
+      /* ---- 4. REVEAL: rows cascade, one at a time, varied eases ---- */
+      tl.to("#r1", { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" }, 7.6);
+      tl.to("#r2", { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, 9.0);
+      tl.to("#r3", { autoAlpha: 1, y: 0, duration: 0.55, ease: "back.out(1.6)" }, 10.5);
+      tl.fromTo("#r3", { x: 0 }, { x: -7, duration: 0.06, repeat: 5, yoyo: true, ease: "sine.inOut" }, 11.05);
+      tl.set("#r3", { x: 0 }, 11.45);
+      tl.to("#r4", { autoAlpha: 1, y: 0, duration: 0.6, ease: "power4.out" }, 11.9);
+      tl.to("#r5", { autoAlpha: 1, y: 0, duration: 0.55, ease: "power2.out" }, 13.1);
+
+      /* ---- 5. ZOOM into the kill row ---- */
+      tl.to("#camera", { scale: 1.5, duration: 1.2, ease: "power2.inOut" }, 14.4);
+      tl.to(["#r1", "#r2", "#r4", "#r5"], { opacity: 0.4, duration: 0.8, ease: "power1.inOut" }, 14.5);
+      tl.to("#setupLine, .payoff", { opacity: 0.25, duration: 0.8, ease: "power1.inOut" }, 14.5);
+      tl.fromTo("#r3", { boxShadow: "0 0 0 0 rgba(192,57,43,0)" },
+        { boxShadow: "0 0 0 10px rgba(192,57,43,0.25)", duration: 0.55, repeat: 3, yoyo: true, ease: "sine.inOut" }, 15.8);
+      tl.to("#camera", { scale: 1, duration: 1.0, ease: "power2.inOut" }, 18.4);
+      tl.to(["#r1", "#r2", "#r4", "#r5"], { opacity: 1, duration: 0.6, ease: "power1.out" }, 18.5);
+
+      /* ---- 6. CTA (final scene: exit allowed) ---- */
+      tl.to("#camera", { autoAlpha: 0, y: 60, scale: 0.97, duration: 0.7, ease: "power2.in" }, 19.8);
+      tl.to("#endcard", { autoAlpha: 1, duration: 0.01 }, 20.4);
+      tl.from("#endcard .name", { y: 60, autoAlpha: 0, scale: 0.92, duration: 0.7, ease: "back.out(1.5)" }, 20.45);
+      tl.from("#endcard .line", { y: 40, autoAlpha: 0, duration: 0.6, ease: "power3.out" }, 20.9);
+      tl.from("#endcard .meta", { y: 26, autoAlpha: 0, duration: 0.5, ease: "expo.out" }, 21.3);
+      tl.from("#endcard .url", { y: 20, autoAlpha: 0, duration: 0.5, ease: "power2.out" }, 21.6);
+      /* hold to 25s */
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

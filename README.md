@@ -82,13 +82,18 @@ Three open-source layers plus a generation layer, bundled to work together:
 - [**hyperframes-student-kit**](https://github.com/nateherkai/hyperframes-student-kit) — motion-design examples and craft
 - **generate-footage** — AI keyframes + image-to-video clips (via Apify actors) and ElevenLabs v3 voiceover with audio tags, for videos built from prompts instead of recordings
 
+## Recipes & worked examples
+Step-by-step production recipes and the real project files behind them ship in the repo:
+- [`recipes/`](recipes/) — three worked methods: a launch video from pure HTML, a tutorial edit from a screen recording, and a website-to-promo capture.
+- [`examples/promo/`](examples/promo/) — the complete project behind a real launch video: DESIGN, SCRIPT, STORYBOARD, the HyperFrames composition, and vendored fonts. Pattern-match it; don't start from a blank file.
+- [`examples/captions/`](examples/captions/) — the caption-overlay composition and render commands from the tutorial recipe.
+
 ## License
 
-**Use it, modify it, share it — don't sell it.** The original code in this repo
-is licensed [MIT + Commons Clause](LICENSE): all MIT freedoms except the right
-to sell the software or a product/service whose value derives substantially
-from it. Making videos with it (including commercial videos for your business)
-is use, not selling — that's allowed.
+**Use it, modify it, share it — don't sell it.** The code in this repo is
+[MIT + Commons Clause](LICENSE): all MIT freedoms except the right to sell the
+software itself. Using it to make videos — including paid client work and
+commercial videos for your own business — is permitted use, not a sale.
 
 Vendored components keep their own upstream licenses (see `LICENSES/`):
 video-use, HyperFrames, and hyperframes-student-kit. Nothing here changes
@@ -96,10 +101,6 @@ their terms.
 
 ---
 
-## Built by Assaf
+## Built by Assaf Kipnis
 
-The demo video on [claudedaddy.io](https://claudedaddy.io) was made with this editor, by typing sentences.
-
-The engine here is free and stays free. **[The Launch Video Kit ($49)](https://claudedaddy.gumroad.com/l/launch-video-kit)** adds the production system around it: four recipes (launch video from pure HTML, tutorial edit from a screen recording, website-to-promo, and a fully generated explainer like the demo above), the worked project files behind the demo videos — actual scripts, prompts, compositions, and timings — and a one-paste setup that installs everything for you.
-
-More tools at [claudedaddy.io](https://claudedaddy.io).
+Built and released free. Issues and PRs welcome.
