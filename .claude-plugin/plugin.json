@@ -5,7 +5,7 @@
   "author": {
     "name": "Assaf Kipnis"
   },
-  "license": "MIT",
+  "license": "MIT + Commons Clause (no resale); vendored components keep upstream licenses",
   "keywords": [
     "ai-video",
     "captions",

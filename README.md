@@ -8,6 +8,10 @@ No timeline, no menus, no presets.
 
 > make me a 90-second anime-style explainer with an excited voiceover
 
+![Demo: an 85-second anime explainer made entirely with this plugin](docs/demo.gif)
+
+*This whole video — the painted keyframes, the animation, the voiceover, the cuts, the captions — was made by talking to Claude with this plugin. No camera, no timeline, ~$3 in generation costs. Highlights above; every scene is AI-generated and every beat is locked to the narration.*
+
 ## What it can do
 - **Cut** filler words (`umm`, `uh`), false starts, and dead space between takes
 - **Captions** — burned-in subtitles or animated lower-thirds, in your style
@@ -24,6 +28,28 @@ timeline previews), so it cuts on word boundaries and stays cheap and fast. It p
 a cut, waits for your OK, renders, checks every cut for jumps and audio pops, then shows
 you the result.
 
+## What you need
+
+No keys or accounts ship with this repo. Everything below is yours, stored locally, and gitignored.
+
+**Tools** (install.sh checks all of these):
+
+| Tool | Used for |
+|---|---|
+| `ffmpeg` | every cut, mux, and export |
+| Node 20+ | the HyperFrames CLI (`npx hyperframes`) |
+| Google Chrome | headless rendering of compositions |
+| Python 3.10+ | the video-use engine + helper scripts |
+
+**Keys and accounts:**
+
+| Key | Needed for | Where it lives | Cost |
+|---|---|---|---|
+| [ElevenLabs API key](https://elevenlabs.io/app/settings/api-keys) | transcription (editing) and v3 voiceover (generation) | `skills/video-use/.env` — local only, gitignored | free tier covers transcription; v3 TTS uses plan credits |
+| [Apify](https://apify.com) account | **generate-footage only** — text-to-image keyframes (`akash9078/ai-image-generator`) and image-to-video clips (`danitn11/wan22-lightning-image-to-video`), called via the Apify MCP or REST token | your Apify account / MCP config | ~$0.01 per keyframe, ~$0.35 per 10s 720p clip (an 8-scene video runs ~$3) |
+
+Editing-only use (cut/caption/grade your own footage) needs just the tools + the ElevenLabs key. Skip Apify entirely if you never generate footage.
+
 ## Install
 ```bash
 git clone https://github.com/assafkip/claude-video-editor && cd claude-video-editor
@@ -31,7 +57,7 @@ git clone https://github.com/assafkip/claude-video-editor && cd claude-video-edi
 ```
 `install.sh` checks the prereqs (`ffmpeg`, Node 20+, headless Chrome, Python), sets up
 the engine, and asks once for an [ElevenLabs key](https://elevenlabs.io/app/settings/api-keys)
-(used for transcription).
+(used for transcription and v3 voiceover). The key is written to a local `.env` that git ignores — verify with `git check-ignore skills/video-use/.env`.
 
 Then register it with Claude Code:
 ```bash
@@ -56,7 +82,17 @@ Three open-source layers plus a generation layer, bundled to work together:
 - [**hyperframes-student-kit**](https://github.com/nateherkai/hyperframes-student-kit) — motion-design examples and craft
 - **generate-footage** — AI keyframes + image-to-video clips (via Apify actors) and ElevenLabs v3 voiceover with audio tags, for videos built from prompts instead of recordings
 
-Each keeps its own license (see `LICENSES/`). This bundle is MIT.
+## License
+
+**Use it, modify it, share it — don't sell it.** The original code in this repo
+is licensed [MIT + Commons Clause](LICENSE): all MIT freedoms except the right
+to sell the software or a product/service whose value derives substantially
+from it. Making videos with it (including commercial videos for your business)
+is use, not selling — that's allowed.
+
+Vendored components keep their own upstream licenses (see `LICENSES/`):
+video-use, HyperFrames, and hyperframes-student-kit. Nothing here changes
+their terms.
 
 ---
 
