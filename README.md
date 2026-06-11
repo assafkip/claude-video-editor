@@ -1,9 +1,12 @@
 # Claude video editor
 
-**Use Claude to edit videos and add captions.** Drop your footage in a folder, tell
-Claude what you want, get `final.mp4` back. No timeline, no menus, no presets.
+**Use Claude to edit videos and add captions — or generate a video from nothing.**
+Drop your footage in a folder, tell Claude what you want, get `final.mp4` back.
+No timeline, no menus, no presets.
 
 > edit these into a 60-second promo with lower-third captions, no voiceover
+
+> make me a 90-second anime-style explainer with an excited voiceover
 
 ## What it can do
 - **Cut** filler words (`umm`, `uh`), false starts, and dead space between takes
@@ -13,7 +16,8 @@ Claude what you want, get `final.mp4` back. No timeline, no menus, no presets.
 - **Speed ramps** for slow stretches
 - **Transcribe** any video to word-level text
 - **Turn a website into a video** (capture a URL, animate it)
-- Works for anything: talking heads, tutorials, montages, promos, shorts, travel, interviews
+- **Generate footage from prompts** — AI keyframes (text-to-image), animated clips (Wan 2.2 image-to-video), expressive ElevenLabs v3 narration with audio tags; an 8-scene 85s video costs ~$3 in generation (needs an [Apify](https://apify.com) account for the image/video models)
+- Works for anything: talking heads, tutorials, montages, promos, shorts, travel, interviews, fully generated explainers
 
 Claude never watches the video frame by frame. It **reads** it (transcript + on-demand
 timeline previews), so it cuts on word boundaries and stays cheap and fast. It proposes
@@ -46,10 +50,11 @@ Outputs land in `edit/`. Your session is remembered in `project.md` so next time
 up where you left off.
 
 ## What's inside
-Three open-source layers, bundled to work together:
+Three open-source layers plus a generation layer, bundled to work together:
 - [**video-use**](https://github.com/browser-use/video-use) — the cutting engine (transcribe, cut, grade, subtitle, render)
 - [**HyperFrames**](https://github.com/heygen-com/hyperframes) — the motion-graphics engine (HTML + GSAP overlays)
 - [**hyperframes-student-kit**](https://github.com/nateherkai/hyperframes-student-kit) — motion-design examples and craft
+- **generate-footage** — AI keyframes + image-to-video clips (via Apify actors) and ElevenLabs v3 voiceover with audio tags, for videos built from prompts instead of recordings
 
 Each keeps its own license (see `LICENSES/`). This bundle is MIT.
 
