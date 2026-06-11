@@ -100,6 +100,6 @@ their terms.
 
 The demo video on [claudedaddy.io](https://claudedaddy.io) was made with this editor, by typing sentences.
 
-The engine here is free and stays free. **[The Launch Video Kit ($49)](https://claudedaddy.gumroad.com/l/launch-video-kit)** adds the production system around it: three recipes (launch video from pure HTML, tutorial edit from a screen recording, website-to-promo), the worked templates behind the demo video, and a one-paste setup that installs everything for you.
+The engine here is free and stays free. **[The Launch Video Kit ($49)](https://claudedaddy.gumroad.com/l/launch-video-kit)** adds the production system around it: four recipes (launch video from pure HTML, tutorial edit from a screen recording, website-to-promo, and a fully generated explainer like the demo above), the worked project files behind the demo videos — actual scripts, prompts, compositions, and timings — and a one-paste setup that installs everything for you.
 
 More tools at [claudedaddy.io](https://claudedaddy.io).
