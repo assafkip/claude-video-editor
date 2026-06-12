@@ -1,0 +1,11 @@
+{
+  "name": "animate-stills",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "python3 ../../skills/generate-footage/scripts/build_scenes.py manifest.json",
+    "dev": "npx --yes hyperframes@0.6.88 preview",
+    "check": "npx --yes hyperframes@0.6.88 lint && npx --yes hyperframes@0.6.88 validate",
+    "render": "npx --yes hyperframes@0.6.88 render"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "size": [1080, 1080],
+  "fps": 30,
+  "scenes": [
+    {
+      "n": 1,
+      "image": "assets/stills/s1.png",
+      "window": [0.0, 6.0],
+      "move": "push-in",
+      "atmosphere": "mist"
+    },
+    {
+      "n": 2,
+      "image": "assets/stills/s2.png",
+      "window": [6.0, 12.0],
+      "move": "drift-left",
+      "atmosphere": "light"
+    }
+  ],
+  "captions": [
+    {"text": "Scene one: a slow push into a still.", "at": [0.6, 5.4]},
+    {"text": "Scene two: a lateral drift with light.", "at": [6.6, 11.4]}
+  ]
+}
