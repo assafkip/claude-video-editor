@@ -6,11 +6,11 @@ No timeline, no menus, no presets.
 
 > edit these into a 60-second promo with lower-third captions, no voiceover
 
-> make me a 90-second anime-style explainer with an excited voiceover
+> research the Stonehenge bluestone debate and make me a narrated explainer
 
-![Demo: an 85-second anime explainer made entirely with this plugin](docs/demo.gif)
+![Demo: the opening of a 2:46 research explainer made entirely with this plugin](docs/demo.gif)
 
-*This whole video — the painted keyframes, the animation, the voiceover, the cuts, the captions — was made by talking to Claude with this plugin. No camera, no timeline, ~$3 in generation costs. Highlights above; every scene is AI-generated and every beat is locked to the narration.*
+*This whole video — 16 painted scenes, documentary camera moves, atmosphere, the storytelling voiceover, 51 timed captions — was made by talking to Claude with this plugin. No camera, no timeline, no video-generation service: still keyframes animated deterministically with the [animate-stills recipe](recipes/04-animate-stills.md), narration by ElevenLabs v3. First 14 seconds above, silent; [watch the full video with sound](docs/demo.mp4).*
 
 ## What it can do
 - **Cut** filler words (`umm`, `uh`), false starts, and dead space between takes
