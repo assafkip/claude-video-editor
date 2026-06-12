@@ -20,7 +20,7 @@ No timeline, no menus, no presets.
 - **Speed ramps** for slow stretches
 - **Transcribe** any video to word-level text
 - **Turn a website into a video** (capture a URL, animate it)
-- **Generate footage from prompts** — AI keyframes (text-to-image), animated clips (Wan 2.2 image-to-video), expressive ElevenLabs v3 narration with audio tags; an 8-scene 85s video costs ~$3 in generation (needs an [Apify](https://apify.com) account for the image/video models)
+- **Build videos from stills** — narration-first explainers from keyframes you source ANYWHERE (AI image tools, screenshots, photos, HTML the engine renders itself), animated deterministically with camera moves + atmosphere; expressive ElevenLabs v3 narration with audio tags
 - Works for anything: talking heads, tutorials, montages, promos, shorts, travel, interviews, fully generated explainers
 
 Claude never watches the video frame by frame. It **reads** it (transcript + on-demand
@@ -37,7 +37,7 @@ No keys or accounts ship with this repo. Everything below is yours, stored local
 | Tool | Used for |
 |---|---|
 | `ffmpeg` | every cut, mux, and export |
-| Node 20+ | the HyperFrames CLI (`npx hyperframes`) |
+| Node 22+ | the HyperFrames CLI (`npx hyperframes`) |
 | Google Chrome | headless rendering of compositions |
 | Python 3.10+ | the video-use engine + helper scripts |
 
@@ -45,17 +45,18 @@ No keys or accounts ship with this repo. Everything below is yours, stored local
 
 | Key | Needed for | Where it lives | Cost |
 |---|---|---|---|
-| [ElevenLabs API key](https://elevenlabs.io/app/settings/api-keys) | transcription (editing) and v3 voiceover (generation) | `skills/video-use/.env` — local only, gitignored | free tier covers transcription; v3 TTS uses plan credits |
-| [Apify](https://apify.com) account | **generate-footage only** — text-to-image keyframes (`akash9078/ai-image-generator`) and image-to-video clips (`danitn11/wan22-lightning-image-to-video`), called via the Apify MCP or REST token | your Apify account / MCP config | ~$0.01 per keyframe, ~$0.35 per 10s 720p clip (an 8-scene video runs ~$3) |
+| [ElevenLabs API key](https://elevenlabs.io/app/settings/api-keys) | transcription (editing) and v3 voiceover (generation) | `$ELEVENLABS_API_KEY` env var, or `skills/video-use/.env` — local only, gitignored | free tier covers transcription; v3 TTS uses plan credits |
 
-Editing-only use (cut/caption/grade your own footage) needs just the tools + the ElevenLabs key. Skip Apify entirely if you never generate footage.
+That's the only key. Still keyframes for generated videos come from any image
+source you already use (AI image tools, screenshots, photos, or HTML the
+engine renders itself) — see the generate-footage skill.
 
 ## Install
 ```bash
 git clone https://github.com/assafkip/claude-video-editor && cd claude-video-editor
 ./install.sh
 ```
-`install.sh` checks the prereqs (`ffmpeg`, Node 20+, headless Chrome, Python), sets up
+`install.sh` checks the prereqs (`ffmpeg`, Node 22+, headless Chrome, Python), sets up
 the engine, and asks once for an [ElevenLabs key](https://elevenlabs.io/app/settings/api-keys)
 (used for transcription and v3 voiceover). The key is written to a local `.env` that git ignores — verify with `git check-ignore skills/video-use/.env`.
 
@@ -80,7 +81,7 @@ Three open-source layers plus a generation layer, bundled to work together:
 - [**video-use**](https://github.com/browser-use/video-use) — the cutting engine (transcribe, cut, grade, subtitle, render)
 - [**HyperFrames**](https://github.com/heygen-com/hyperframes) — the motion-graphics engine (HTML + GSAP overlays)
 - [**hyperframes-student-kit**](https://github.com/nateherkai/hyperframes-student-kit) — motion-design examples and craft
-- **generate-footage** — AI keyframes + image-to-video clips (via Apify actors) and ElevenLabs v3 voiceover with audio tags, for videos built from prompts instead of recordings
+- **generate-footage** — narration-first videos from still keyframes (sourced from any image tool, screenshots, or the engine's own HTML renders), animated deterministically with HyperFrames camera moves + atmosphere, ElevenLabs v3 voiceover with audio tags
 
 ## Recipes & worked examples
 Step-by-step production recipes and the real project files behind them ship in the repo:

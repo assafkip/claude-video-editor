@@ -1,35 +1,33 @@
 ---
 name: generate-footage
-description: Generate footage from prompts when there is nothing to cut — AI keyframes (text-to-image), animated clips (image-to-video via Wan 2.2), and expressive ElevenLabs v3 voiceover with audio tags. Use when the user wants an explainer, anime-style video, or any video built from generated visuals instead of recorded footage. Output feeds straight into HyperFrames compositions: generated clips become <video> scene tracks, narration drives all beat timings.
+description: Build videos from stills when there is nothing to cut — narration first (ElevenLabs v3 with audio tags), then still keyframes from ANY source (AI image tools, screenshots, photos, HyperFrames-rendered HTML), animated deterministically with the animate-stills recipe (HyperFrames camera moves + GSAP atmosphere). Use when the user wants an explainer, documentary-style video, or any video built from generated or collected visuals instead of recorded footage.
 ---
 
 # generate-footage
 
 The plugin's other entry point. `video-use` edits footage you HAVE. This skill
-creates footage you DON'T: painted keyframes, animated clips, and narration —
-then hands everything to HyperFrames for composition and render.
+builds videos from footage you DON'T have yet: narration plus still keyframes,
+composed and animated by HyperFrames, rendered deterministically.
 
-Proven pipeline (built 2026-06-11, anime explainer, ~$3 total generation cost):
+Pipeline (proven in production; see `docs/rca/` for why the motion step is
+deterministic):
 
 ```
 script (with v3 audio tags)
   → eleven_v3 narration            (scripts/tts_v3.py)
   → transcribe                     (npx hyperframes transcribe narration.mp3)
   → lock scene windows to sentence boundaries (word-level timestamps)
-  → generate keyframes             (Apify: text-to-image, one per scene)
-  → animate keyframes              (Apify: Wan 2.2 image-to-video, 10s/720p)
-  → fit clips to scene windows     (ffmpeg trim / setpts stretch)
-  → HyperFrames composition        (<video> scene tracks + overlays + captions)
-  → lint → draft render → QA frames → final render
+  → STILLS FROM ANYWHERE           (one keyframe per scene — see below)
+  → animate-stills composition     (recipes/04-animate-stills.md, build_scenes.py)
+  → lint → render → motion + audio QA (scripts/motion_check.py, contact sheet)
 ```
 
 ## Order matters: voice FIRST, visuals second
 
 Generate and transcribe the narration BEFORE building any composition or
-generating any clips. The spoken sentence boundaries are the scene windows.
-Building visuals first means re-timing everything when the voice lands
-differently (v3 reads are non-deterministic in pacing — a 75s estimate can
-come out 60s or 85s).
+collecting keyframes. The spoken sentence boundaries are the scene windows.
+v3 reads are non-deterministic in pacing — a 120s estimate can come out 100s
+or 166s — so visuals built first always get re-timed.
 
 ## Voiceover — ElevenLabs v3 with audio tags
 
@@ -41,96 +39,81 @@ python3 scripts/tts_v3.py --probe                      # verify eleven_v3 + list
 python3 scripts/tts_v3.py --voice <id> --stability 0.0 --script SCRIPT.md --out narration.mp3
 ```
 
-- Audio tags go in the script text: `[excited]`, `[whispers]`, `[shouts]`,
-  `[dramatic tone]`, `[softly]`, `[warmly]`. v3 performs them; v2 ignores them.
-- Stability: `0.0` = Creative (max expressiveness — hype/anime reads),
-  `0.5` = Natural, `1.0` = Robust. A "flat" read is fixed by lowering
-  stability and re-tagging the script, not by louder words.
-- Delivery levers that work: CAPS on power words, `...` for dramatic pauses,
-  `!` for energy. Contrast sells — drop to `[whispers]` right before a shout.
+- Audio tags go in the script text: `[excited]`, `[whispers]`, `[softly]`,
+  `[dramatic tone]`, `[warmly]`. v3 performs them; v2 ignores them.
+- Stability: `0.0` = Creative (max expressiveness), `0.5` = Natural,
+  `1.0` = Robust. A "flat" read is fixed by lowering stability and re-tagging
+  the script, not by louder words.
+- Delivery levers: CAPS on power words, `...` for dramatic pauses, contrast
+  (drop to `[whispers]` right before a big line).
 - Audition 2-3 voices on the first sentence before committing. The first
   voice is never the pick.
-- v3 may paraphrase slightly (one word here and there). Transcribe and read
-  the result; regenerate if a key line drifted.
+- v3 may paraphrase slightly. Transcribe and READ the result; regenerate if
+  a key line drifted.
 
-## Keyframes — Apify text-to-image
+## Stills from anywhere
 
-Actor: `akash9078/ai-image-generator` (input: `prompt`, `ratio`). ~$0.01/image.
-Call via Apify MCP (`call-actor`) when connected, else REST with `APIFY_TOKEN`.
+A keyframe is just a PNG. The pipeline does not care where it came from.
+One still per scene, named `kf-NN.png`, listed in the scene manifest
+(`recipes/04-animate-stills.md` documents the schema). Sources that work:
 
-Rules that held up in production:
+- **AI image tools** — any text-to-image tool you already have (Gemini,
+  GPT image, Midjourney, local SD, or a hosted actor — see the optional
+  section at the end). Generate from per-scene prompts with one locked
+  style suffix.
+- **Screenshots and photos** — product UI captures, archive material, scans,
+  real photography. The Ken Burns treatment was invented for this.
+- **HyperFrames-rendered HTML** — build a styled HTML frame and snapshot it;
+  the engine produces its own stills.
 
-- **Character consistency**: write ONE character description and prefix every
-  prompt with it verbatim ("An original 12-year-old anime hero girl with short
-  messy dark indigo hair with a single gold streak, large teal-green eyes, teal
-  short-sleeved school hero jacket with gold trim. ..."). Drift across frames
-  reads as different shots once there's motion and grading — close enough.
-- **Style suffix** on every prompt: ".. dark cinematic shonen anime production
-  keyframe, painterly background, dramatic rim lighting, high detail, no text,
-  no watermark, no logo".
-- **Original characters only.** Never named IP (MHA/Naruto/etc.) — describe the
-  energy, not the franchise. Required for anything posted publicly.
-- **Silent failures**: the actor can return `ok:true` with `imageUrl:null`.
-  That's a content-filter or generation miss — reword emotionally loaded
-  phrasing ("frozen in fear" → "stands very still, wide worried eyes") and
-  retry.
-- **Watermark**: output may carry a small corner mark. Kill it with
-  `object-fit: cover` + scale ≥1.06 in composition, or crop in ffmpeg.
-- QA every frame (Read the image). One off-style frame (chibi-on-white in a
-  dark cinematic set) is a regenerate, not a keep.
+Craft rules that hold regardless of source:
 
-## Animation — Apify Wan 2.2 image-to-video
+- **Lock ONE style** in DESIGN.md and apply it to every frame. Drift across
+  frames reads as different shots once there's motion and grading.
+- **Verify the file type.** Some tools serve JPEGs with .png names; check
+  magic bytes before composing (`file kf-01.png`).
+- **QA every frame** (read the image). One off-style frame is a regenerate,
+  not a keep. Check for: text artifacts, watermarks, anachronisms, faces in
+  close-up (drift risk), wrong palette.
+- **No named IP, no real living person's likeness** in generated frames for
+  anything posted publicly.
 
-Actor: `danitn11/wan22-lightning-image-to-video`. $0.02/s @480p, $0.035/s
-@720p. Input: `imageUrl`, `prompt`, `resolution`, `aspectRatio`, `duration`
-(2-10s), `negativePrompt`, `cfgScale` (1.0).
+## Animation — deterministic, in-repo
 
-- **Feed it the image actor's own hosted output URL** — the signed
-  `api.apify.com/v2/key-value-stores/...` URL works directly as `imageUrl`.
-  No upload step.
-- **Prompt = motion only.** The image already defines the look. Describe what
-  moves: "hair blows upward, lightning arcs intensify, camera slowly pushes
-  in". Negative: "blur, distort, low quality, morphing face, text, watermark".
-- Generate **10s at 720p** per scene. Output is 16fps 720x720 — soft but
-  reads as anime production once graded and in motion.
-- Image-to-video preserves the character. Text-to-video would lose it.
+Stills become motion with the **animate-stills recipe**
+(`recipes/04-animate-stills.md`): a manifest-driven HyperFrames composition
+applying camera language (push-ins, drifts, holds) and GSAP atmosphere
+(mist, rain, light shifts, vignette) over each still, scene windows locked
+to the transcript. `scripts/build_scenes.py` generates the scene layers from
+the manifest; `scripts/motion_check.py` proves real motion via pixel-diff in
+the rendered output. Renders identically every run, costs nothing, works
+offline.
 
-## Fitting clips to scene windows
+Requires Node >= 22 for the HyperFrames CLI.
 
-Clips are 10s; scenes are whatever the narration says. ffmpeg per scene:
+## Captions and assembly
 
-```bash
-# scene shorter than clip → trim
-ffmpeg -i s1.mp4 -vf "scale=1080:1080,fps=30" -t 7.1 -an -c:v libx264 -crf 16 s1-fit.mp4
-# scene longer than clip → slow-stretch (keep factor ≤ 1.5x — ambient motion hides it)
-ffmpeg -i s6.mp4 -vf "setpts=1.441*PTS,scale=1080:1080,fps=30" -t 14.5 -an -c:v libx264 -crf 16 s6-fit.mp4
-```
-
-Scale to composition size, normalize fps, strip audio (`-an` — narration is
-the only audio track).
-
-## Composition — generated clips in HyperFrames
-
-- Each scene = a plain stacked `<div class="scene">` layer (NO data-* timing
-  attrs on it), opacity-gated by the master timeline, z-index ordered.
-- Inside each: `<video class="clip" data-start data-duration data-track-index
-  muted playsinline>` — the framework owns playback. Video sits in a non-timed
-  wrapper div; shakes/moves animate the WRAPPER, never the video element.
-- Anime cut language on top: white flash `fromTo(opacity 0.9→0, 0.28s)` at
-  every scene boundary, finite-repeat shake on slam moments, Anton impact
-  stamps, speed-line overlays (`repeating-conic-gradient` + `mix-blend-mode:
-  screen`), dark vignette grade to unify generated footage and make captions
-  read.
 - Captions burned in (muted autoplay on Reddit/X), phrase-level, timed from
   the transcript words.
+- White flash (0.28s) at story turns; soft crossfades elsewhere; dark
+  vignette grade unifies stills from mixed sources and makes captions read.
 - Verify motion in the render: pixel-diff two frames 4s apart inside one
-  scene (mean gray diff >3 = real motion; ~0 = you rendered stills).
+  scene (`scripts/motion_check.py` — mean gray diff > 3 = real motion).
+- Audio QA: `ffmpeg -af volumedetect` — documentary speech sits near
+  -26 dB mean.
 
-## Cost reality (2026-06)
+## Optional: hosted generative tools
 
-| Step | Cost |
-|---|---|
-| Keyframe (image) | ~$0.01 each |
-| Animated clip 10s/720p | ~$0.35 each |
-| eleven_v3 narration ~85s | ElevenLabs plan credits |
-| Full 8-scene 85s video | ~$3 |
+These are NOT dependencies. They are one way among several to source stills
+or clips, and they can disappear without notice — plan accordingly.
+
+- Apify text-to-image actors (e.g. `akash9078/ai-image-generator`,
+  ~$0.01/image) worked well for batch keyframe generation. Watch for silent
+  failures (`ok:true` with a null URL) and mislabeled file types.
+- Hosted image-to-video actors are where this pipeline previously kept its
+  motion step. On 2026-06-11 the actor `danitn11/wan22-lightning-image-to-video`
+  (2 total users) died upstream mid-production and every run failed
+  instantly; the full analysis is in
+  `docs/rca/rca-generate-footage-animation-2026-06-11.md`. Generative
+  image-to-video now lives in a separate companion repo with a pluggable
+  BYO-key backend; this plugin's motion step is deterministic and local.
